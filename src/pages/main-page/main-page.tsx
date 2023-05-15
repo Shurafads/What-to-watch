@@ -1,8 +1,15 @@
 import { Link } from 'react-router-dom';
-import Card from '../../components/card/card';
 import Footer from '../../components/footer/footer';
+import { Film } from '../../types/film';
+import CardList from '../../components/card-list/card-list';
+import Header from '../../components/header/header';
 
-export default function MainPage() {
+type MainPageProps = {
+  films: Film[];
+}
+
+export default function MainPage({films}: MainPageProps) {
+
   return (
     <>
       <section className="film-card">
@@ -12,26 +19,7 @@ export default function MainPage() {
 
         <h1 className="visually-hidden">WTW</h1>
 
-        <header className="page-header film-card__head">
-          <div className="logo">
-            <Link className="logo__link" to="/">
-              <span className="logo__letter logo__letter--1">W</span>
-              <span className="logo__letter logo__letter--2">T</span>
-              <span className="logo__letter logo__letter--3">W</span>
-            </Link>
-          </div>
-
-          <ul className="user-block">
-            <li className="user-block__item">
-              <div className="user-block__avatar">
-                <img src="img/avatar.jpg" alt="User avatar" width="63" height="63" />
-              </div>
-            </li>
-            <li className="user-block__item">
-              <Link className="user-block__link" to="/">Sign out</Link>
-            </li>
-          </ul>
-        </header>
+        <Header />
 
         <div className="film-card__wrap">
           <div className="film-card__info">
@@ -102,11 +90,7 @@ export default function MainPage() {
               <Link to="#" className="catalog__genres-link">Thrillers</Link>
             </li>
           </ul>
-
-          <div className="catalog__films-list">
-            <Card />
-          </div>
-
+          <CardList films={films}/>
           <div className="catalog__more">
             <button className="catalog__button" type="button">Show more</button>
           </div>

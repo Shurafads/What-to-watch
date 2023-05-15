@@ -1,8 +1,43 @@
-import { Link } from 'react-router-dom';
-import { AppRoute } from '../../const';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import Footer from '../../components/footer/footer';
+import { Film } from '../../types/film';
+import Header from '../../components/header/header';
+import { AppRoute } from '../../const';
+import CardList from '../../components/card-list/card-list';
 
-export default function FilmPage() {
+type FilmPageProps = {
+  films: Film[];
+};
+
+export default function FilmPage({films}: FilmPageProps) {
+  const params = useParams();
+  const redirect = useNavigate();
+
+  const currentFilm = films.find((film) => film.id === Number(params.id));
+
+  if (!currentFilm) {
+    redirect(AppRoute.Main);
+    return null;
+  }
+
+  const ratingTitle = () => {
+    if (currentFilm.rating <= 2) {
+      return 'Bad';
+    }
+    if (currentFilm.rating <= 4) {
+      return 'Normal';
+    }
+    if (currentFilm.rating <= 6) {
+      return 'Good';
+    }
+    if (currentFilm.rating <= 8) {
+      return 'Very good';
+    }
+    return 'Awesome';
+  };
+
+  const starringList = currentFilm.starring.reduce((acc, star) => `${acc} ${star}, `, '').slice(0, -2);
+
   return (
     <>
       <section className="film-card film-card--full">
@@ -13,33 +48,14 @@ export default function FilmPage() {
 
           <h1 className="visually-hidden">WTW</h1>
 
-          <header className="page-header film-card__head">
-            <div className="logo">
-              <Link to={AppRoute.Main} className="logo__link">
-                <span className="logo__letter logo__letter--1">W</span>
-                <span className="logo__letter logo__letter--2">T</span>
-                <span className="logo__letter logo__letter--3">W</span>
-              </Link>
-            </div>
-
-            <ul className="user-block">
-              <li className="user-block__item">
-                <div className="user-block__avatar">
-                  <img src="img/avatar.jpg" alt="User avatar" width="63" height="63" />
-                </div>
-              </li>
-              <li className="user-block__item">
-                <Link className="user-block__link" to="/">Sign out</Link>
-              </li>
-            </ul>
-          </header>
+          <Header />
 
           <div className="film-card__wrap">
             <div className="film-card__desc">
-              <h2 className="film-card__title">The Grand Budapest Hotel</h2>
+              <h2 className="film-card__title">{currentFilm.name}</h2>
               <p className="film-card__meta">
-                <span className="film-card__genre">Drama</span>
-                <span className="film-card__year">2014</span>
+                <span className="film-card__genre">{currentFilm.genre}</span>
+                <span className="film-card__year">{currentFilm.released}</span>
               </p>
 
               <div className="film-card__buttons">
@@ -56,7 +72,7 @@ export default function FilmPage() {
                   <span>My list</span>
                   <span className="film-card__count">9</span>
                 </button>
-                <Link to="/" className="btn film-card__button" >Add review</Link>
+                <Link to={`${AppRoute.Film}${currentFilm.id}/review`} className="btn film-card__button" >Add review</Link>
               </div>
             </div>
           </div>
@@ -65,7 +81,7 @@ export default function FilmPage() {
         <div className="film-card__wrap film-card__translate-top">
           <div className="film-card__info">
             <div className="film-card__poster film-card__poster--big">
-              <img src="img/the-grand-budapest-hotel-poster.jpg" alt="The Grand Budapest Hotel poster" width="218" height="327" />
+              <img src={currentFilm.posterImage} alt={`${currentFilm.name} poster`} width="218" height="327" />
             </div>
 
             <div className="film-card__desc">
@@ -84,21 +100,19 @@ export default function FilmPage() {
               </nav>
 
               <div className="film-rating">
-                <div className="film-rating__score">8,9</div>
+                <div className="film-rating__score">{currentFilm.rating}</div>
                 <p className="film-rating__meta">
-                  <span className="film-rating__level">Very good</span>
-                  <span className="film-rating__count">240 ratings</span>
+                  <span className="film-rating__level">{ratingTitle()}</span>
+                  <span className="film-rating__count">{`${currentFilm.scoresCount} ratings`}</span>
                 </p>
               </div>
 
               <div className="film-card__text">
-                <p>In the 1930s, the Grand Budapest Hotel is a popular European ski resort, presided over by concierge Gustave H. (Ralph Fiennes). Zero, a junior lobby boy, becomes Gustave`s friend and protege.</p>
+                <p>{currentFilm.description}</p>
 
-                <p>Gustave prides himself on providing first-className service to the hotel`s guests, including satisfying the sexual needs of the many elderly women who stay there. When one of Gustave`s lovers dies mysteriously, Gustave finds himself the recipient of a priceless painting and the chief suspect in her murder.</p>
+                <p className="film-card__director"><strong>{`Director: ${currentFilm.director}`}</strong></p>
 
-                <p className="film-card__director"><strong>Director: Wes Anderson</strong></p>
-
-                <p className="film-card__starring"><strong>Starring: Bill Murray, Edward Norton, Jude Law, Willem Dafoe and other</strong></p>
+                <p className="film-card__starring"><strong>{`Starring: ${starringList} and other`}</strong></p>
               </div>
             </div>
           </div>
@@ -109,46 +123,12 @@ export default function FilmPage() {
         <section className="catalog catalog--like-this">
           <h2 className="catalog__title">More like this</h2>
 
-          <div className="catalog__films-list">
-            <article className="small-film-card catalog__films-card">
-              <div className="small-film-card__image">
-                <img src="img/fantastic-beasts-the-crimes-of-grindelwald.jpg" alt="Fantastic Beasts: The Crimes of Grindelwald" width="280" height="175" />
-              </div>
-              <h3 className="small-film-card__title">
-                <Link className="small-film-card__link" to="film-page.html">Fantastic Beasts: The Crimes of Grindelwald</Link>
-              </h3>
-            </article>
+          <CardList films={films}/>
 
-            <article className="small-film-card catalog__films-card">
-              <div className="small-film-card__image">
-                <img src="img/bohemian-rhapsody.jpg" alt="Bohemian Rhapsody" width="280" height="175" />
-              </div>
-              <h3 className="small-film-card__title">
-                <Link className="small-film-card__link" to="film-page.html">Bohemian Rhapsody</Link>
-              </h3>
-            </article>
-
-            <article className="small-film-card catalog__films-card">
-              <div className="small-film-card__image">
-                <img src="img/macbeth.jpg" alt="Macbeth" width="280" height="175" />
-              </div>
-              <h3 className="small-film-card__title">
-                <Link className="small-film-card__link" to="film-page.html">Macbeth</Link>
-              </h3>
-            </article>
-
-            <article className="small-film-card catalog__films-card">
-              <div className="small-film-card__image">
-                <img src="img/aviator.jpg" alt="Aviator" width="280" height="175" />
-              </div>
-              <h3 className="small-film-card__title">
-                <Link className="small-film-card__link" to="film-page.html">Aviator</Link>
-              </h3>
-            </article>
-          </div>
         </section>
 
         <Footer />
+
       </div>
     </>
   );

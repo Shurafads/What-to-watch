@@ -1,6 +1,37 @@
-import { Link } from 'react-router-dom';
+import { Film } from '../../types/film';
+import Header from '../../components/header/header';
+import { useParams } from 'react-router-dom';
+import { ChangeEvent, FormEvent, useState } from 'react';
+import Star from '../../components/star/star';
+import { StarsCount } from '../../const';
 
-export default function AddReviewPage() {
+type AddReviewPageProps = {
+  films: Film[];
+};
+
+export default function AddReviewPage({films}: AddReviewPageProps) {
+  const params = useParams();
+  const currentFilm = films.find((film) => film.id === Number(params.id));
+  const [userComment, setUserComment] = useState({review: '', rating: '0'});
+
+  const handleChangeForm = ({target}: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const {value, name} = target;
+
+    setUserComment((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  const cleanForm = () => {
+    setUserComment({review: '', rating: '0'});
+  };
+
+  const handleSubmitForm = (evt: FormEvent<HTMLFormElement>) => {
+    evt.preventDefault();
+    cleanForm();
+  };
+
   return (
     <section className="film-card film-card--full">
       <div className="film-card__header">
@@ -10,37 +41,7 @@ export default function AddReviewPage() {
 
         <h1 className="visually-hidden">WTW</h1>
 
-        <header className="page-header">
-          <div className="logo">
-            <a href="main.html" className="logo__link">
-              <span className="logo__letter logo__letter--1">W</span>
-              <span className="logo__letter logo__letter--2">T</span>
-              <span className="logo__letter logo__letter--3">W</span>
-            </a>
-          </div>
-
-          <nav className="breadcrumbs">
-            <ul className="breadcrumbs__list">
-              <li className="breadcrumbs__item">
-                <a href="film-page.html" className="breadcrumbs__link">The Grand Budapest Hotel</a>
-              </li>
-              <li className="breadcrumbs__item">
-                <Link className="breadcrumbs__link" to="/">Add review</Link>
-              </li>
-            </ul>
-          </nav>
-
-          <ul className="user-block">
-            <li className="user-block__item">
-              <div className="user-block__avatar">
-                <img src="img/avatar.jpg" alt="User avatar" width="63" height="63" />
-              </div>
-            </li>
-            <li className="user-block__item">
-              <Link className="user-block__link" to="/">Sign out</Link>
-            </li>
-          </ul>
-        </header>
+        <Header currentFilm={currentFilm}/>
 
         <div className="film-card__poster film-card__poster--small">
           <img src="img/the-grand-budapest-hotel-poster.jpg" alt="The Grand Budapest Hotel poster" width="218" height="327" />
@@ -48,47 +49,26 @@ export default function AddReviewPage() {
       </div>
 
       <div className="add-review">
-        <form action="#" className="add-review__form">
+        <form action="#" className="add-review__form" onSubmit={handleSubmitForm}>
           <div className="rating">
             <div className="rating__stars">
-              <input className="rating__input" id="star-10" type="radio" name="rating" value="10" />
-              <label className="rating__label" htmlFor="star-10">Rating 10</label>
-
-              <input className="rating__input" id="star-9" type="radio" name="rating" value="9" />
-              <label className="rating__label" htmlFor="star-9">Rating 9</label>
-
-              <input className="rating__input" id="star-8" type="radio" name="rating" value="8" checked />
-              <label className="rating__label" htmlFor="star-8">Rating 8</label>
-
-              <input className="rating__input" id="star-7" type="radio" name="rating" value="7" />
-              <label className="rating__label" htmlFor="star-7">Rating 7</label>
-
-              <input className="rating__input" id="star-6" type="radio" name="rating" value="6" />
-              <label className="rating__label" htmlFor="star-6">Rating 6</label>
-
-              <input className="rating__input" id="star-5" type="radio" name="rating" value="5" />
-              <label className="rating__label" htmlFor="star-5">Rating 5</label>
-
-              <input className="rating__input" id="star-4" type="radio" name="rating" value="4" />
-              <label className="rating__label" htmlFor="star-4">Rating 4</label>
-
-              <input className="rating__input" id="star-3" type="radio" name="rating" value="3" />
-              <label className="rating__label" htmlFor="star-3">Rating 3</label>
-
-              <input className="rating__input" id="star-2" type="radio" name="rating" value="2" />
-              <label className="rating__label" htmlFor="star-2">Rating 2</label>
-
-              <input className="rating__input" id="star-1" type="radio" name="rating" value="1" />
-              <label className="rating__label" htmlFor="star-1">Rating 1</label>
+              {StarsCount.map((number) => <Star key={number} star={number} number={number} value={userComment.rating} onChange={handleChangeForm}/>).reverse()}
             </div>
           </div>
 
           <div className="add-review__text">
-            <textarea className="add-review__textarea" name="review-text" id="review-text" placeholder="Review text"></textarea>
+            <textarea
+              className="add-review__textarea"
+              name="review" id="review"
+              placeholder="Review text"
+              value={userComment.review}
+              onChange={handleChangeForm}
+              // disabled={isTextAreaDisabled}
+            >
+            </textarea>
             <div className="add-review__submit">
               <button className="add-review__btn" type="submit">Post</button>
             </div>
-
           </div>
         </form>
       </div>
